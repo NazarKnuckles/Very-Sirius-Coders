@@ -1,0 +1,179 @@
+{% extends 'crius/base.html' %}
+{% load static %}
+
+{% block title %}Very Sirius coders · банк задач{% endblock %}
+
+{% block extra_css %}
+<style>
+    .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 24px;
+        max-width: 900px;
+    }
+
+    .task-row {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: border-color 0.2s, transform 0.1s;
+    }
+
+    .task-row:hover {
+        border-color: var(--accent);
+        transform: translateY(-1px);
+    }
+
+    .task-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .task-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-heading);
+    }
+
+    .task-desc {
+        font-size: 0.95rem;
+        color: var(--text-main);
+        opacity: 0.85;
+    }
+
+    .tags {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        background-color: rgba(76, 175, 80, 0.12);
+        color: var(--accent);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid rgba(76, 175, 80, 0.25);
+    }
+
+    .tag.type-bug {
+        color: #e06c75;
+        border-color: rgba(224, 108, 117, 0.3);
+        background-color: rgba(224, 108, 117, 0.08);
+    }
+
+    .tag.type-opt {
+        color: #e5c07b;
+        border-color: rgba(229, 192, 123, 0.3);
+        background-color: rgba(229, 192, 123, 0.08);
+    }
+
+    .btn-solve {
+        background-color: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 40px;
+        cursor: default;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        white-space: nowrap;
+        margin-left: 20px;
+        opacity: 0.9;
+        pointer-events: none;
+        user-select: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="tasks-section" class="section active">
+    <h1>📋 Банк задач</h1>
+    <p style="margin-bottom: 4px;">Практикуйтесь на реальных задачах.</p>
+
+    <div class="task-list">
+        <div class="task-row">
+            <div class="task-info">
+                <div class="task-title">Бинарный поиск в массиве</div>
+                <div class="task-desc">Найдите и исправьте логическую ошибку. Программа падает при отсутствии элемента.</div>
+                <div class="tags">
+                    <span class="tag">Python</span>
+                    <span class="tag type-bug">Поиск ошибок</span>
+                </div>
+            </div>
+            <span class="btn-solve">Решить</span>
+        </div>
+
+        <div class="task-row">
+            <div class="task-info">
+                <div class="task-title">Обработка логов лоудбалансера</div>
+                <div class="task-desc">Скрипт работает за O(N²). Оптимизируйте, чтобы уложиться в 1.5 сек.</div>
+                <div class="tags">
+                    <span class="tag">Python</span>
+                    <span class="tag type-opt">Оптимизация</span>
+                </div>
+            </div>
+            <span class="btn-solve">Решить</span>
+        </div>
+
+        <div class="task-row">
+            <div class="task-info">
+                <div class="task-title">Сортировка пузырьком</div>
+                <div class="task-desc">Напишите классический алгоритм сортировки целых чисел с нуля.</div>
+                <div class="tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Алгоритмы</span>
+                </div>
+            </div>
+            <span class="btn-solve">Решить</span>
+        </div>
+    </div>
+</div>
+
+<div id="courses-section" class="section"></div>
+<div id="workspace-section" class="section"></div>
+<div id="portfolio-section" class="section"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function(){
+        const sections = {
+            'tasks-section': document.getElementById('tasks-section'),
+            'courses-section': document.getElementById('courses-section'),
+            'workspace-section': document.getElementById('workspace-section'),
+            'portfolio-section': document.getElementById('portfolio-section')
+        };
+
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function switchSection(sectionId) {
+            Object.values(sections).forEach(s => s.classList.remove('active'));
+            if (sections[sectionId]) sections[sectionId].classList.add('active');
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                const section = this.dataset.section;
+                if (section) switchSection(section);
+            });
+        });
+    })();
+</script>
+{% endblock %}

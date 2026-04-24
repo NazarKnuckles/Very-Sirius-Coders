@@ -1,0 +1,121 @@
+{% extends 'crius/base.html' %}
+{% load static %}
+
+{% block title %}Very Sirius coders · рабочее пространство{% endblock %}
+
+{% block extra_css %}
+<style>
+    .workspace-container {
+        margin-top: 24px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        width: 100%;
+        max-width: 900px;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .workspace-block {
+        flex: 1;
+        background-color: var(--bg-panel);
+        padding: 30px 24px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .workspace-block:last-child {
+        border-right: none;
+    }
+
+    .workspace-block:hover {
+        background-color: #3a404b;
+    }
+
+    .workspace-icon {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .workspace-block h2 {
+        color: var(--text-heading);
+        font-size: 1.8rem;
+        margin-bottom: 16px;
+        margin-top: 0;
+    }
+
+    .workspace-block p {
+        color: var(--text-main);
+        opacity: 0.9;
+        font-size: 1.05rem;
+        line-height: 1.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="workspace-section" class="section active">
+    <h1>💻 Рабочее пространство</h1>
+    <p style="margin-bottom: 4px;">Управляйте задачами, проектами и курсами в одном месте.</p>
+
+    <div class="workspace-container">
+        <div class="workspace-block">
+            <div class="workspace-icon">📚</div>
+            <h2>Задачи</h2>
+            <p>Вернитесь к предыдущим задачам.</p>
+        </div>
+        <div class="workspace-block">
+            <div class="workspace-icon">🚀</div>
+            <h2>Проекты</h2>
+            <p>Создавайте и управляйте собственными проектами.</p>
+        </div>
+        <div class="workspace-block">
+            <div class="workspace-icon">🎓</div>
+            <h2>Курсы</h2>
+            <p>Продолжите обучение на курсах.</p>
+        </div>
+    </div>
+</div>
+
+<div id="tasks-section" class="section"></div>
+<div id="courses-section" class="section"></div>
+<div id="portfolio-section" class="section"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function(){
+        const sections = {
+            'workspace-section': document.getElementById('workspace-section'),
+            'tasks-section': document.getElementById('tasks-section'),
+            'courses-section': document.getElementById('courses-section'),
+            'portfolio-section': document.getElementById('portfolio-section')
+        };
+
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function switchSection(sectionId) {
+            Object.values(sections).forEach(s => s.classList.remove('active'));
+            if (sections[sectionId]) sections[sectionId].classList.add('active');
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                const section = this.dataset.section;
+                if (section) switchSection(section);
+            });
+        });
+    })();
+</script>
+{% endblock %}

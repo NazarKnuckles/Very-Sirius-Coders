@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Very Sirius coders{% endblock %}</title>
+    <style>
+        :root {
+            --bg-main: #181a1f;
+            --bg-sidebar: #21252b;
+            --bg-panel: #282c34;
+            --text-main: #abb2bf;
+            --text-heading: #ffffff;
+            --accent: #4caf50;
+            --border-color: #3e4451;
+            --hover-bg: #2c313a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 10px 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--hover-bg);
+            color: var(--text-heading);
+            border-left: 4px solid var(--accent);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+            padding: 30px;
+            height: 100%;
+        }
+
+        .section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 { color: var(--text-heading); margin-bottom: 8px; font-size: 2rem; }
+
+        .welcome-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+        .welcome-message .logo-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        .welcome-message .sub-text {
+            font-size: 1.5rem;
+            color: var(--text-heading);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">Very Sirius coders</div>
+    <ul class="nav-menu">
+        <li class="nav-item" data-section="tasks-section" data-url="{% url 'crius:list' %}">📚 Банк задач</li>
+        <li class="nav-item" data-section="courses-section" data-url="{% url 'crius:course' %}">🎓 Курсы</li>
+        <li class="nav-item" data-section="workspace-section" data-url="{% url 'crius:workspace' %}">💻 Рабочее
+            пространство
+        </li>
+        <li class="nav-item" data-section="portfolio-section" data-url="{% url 'crius:portfolio' %}">👤 Портфолио</li>
+    </ul>
+</div>
+
+<div class="main-content">
+    {% block content %}
+    <div id="welcome-section" class="section active">
+        <div class="welcome-message">
+            <div class="logo-text">Very Sirius coders</div>
+            <div class="sub-text">Добро пожаловать!</div>
+        </div>
+    </div>
+    <div id="tasks-section" class="section"></div>
+    <div id="courses-section" class="section"></div>
+    <div id="workspace-section" class="section"></div>
+    <div id="portfolio-section" class="section"></div>
+    {% endblock %}
+</div>
+
+<script>
+    (function(){
+        const sections = {
+            'welcome-section': document.getElementById('welcome-section'),
+            'tasks-section': document.getElementById('tasks-section'),
+            'courses-section': document.getElementById('courses-section'),
+            'workspace-section': document.getElementById('workspace-section'),
+            'portfolio-section': document.getElementById('portfolio-section')
+        };
+
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function switchSection(sectionId) {
+            Object.values(sections).forEach(s => s.classList.remove('active'));
+            if (sections[sectionId]) sections[sectionId].classList.add('active');
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                const section = this.dataset.section;
+                const url = this.dataset.url;
+
+                if (url) {
+                    window.location.href = url;
+                } else if (section) {
+                    switchSection(section);
+                }
+            });
+        });
+    })();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

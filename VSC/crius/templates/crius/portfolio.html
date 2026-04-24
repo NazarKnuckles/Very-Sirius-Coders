@@ -1,0 +1,338 @@
+{% extends 'crius/base.html' %}
+{% load static %}
+
+{% block title %}Very Sirius coders · портфолио{% endblock %}
+
+{% block extra_css %}
+<style>
+    .portfolio-container {
+        margin-top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* Профиль */
+    .profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--text-heading);
+    }
+
+    .xp-container {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .level-badge {
+        background-color: var(--accent);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .xp-bar-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .xp-bar {
+        width: 200px;
+        height: 10px;
+        background-color: var(--bg-panel);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .xp-fill {
+        height: 100%;
+        background-color: var(--accent);
+        width: 0%;
+        transition: width 0.3s;
+    }
+
+    .xp-text {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-heading);
+        font-weight: 500;
+    }
+
+    .xp-text span:first-child {
+        color: var(--text-main);
+    }
+
+    /* Секция портфолио */
+    .portfolio-section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-heading);
+        margin-bottom: 20px;
+    }
+
+    .achievements-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    .achievements-column {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .column-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .column-header h3 {
+        color: var(--text-heading);
+        font-size: 1.3rem;
+        margin: 0;
+    }
+
+    .column-count {
+        background-color: var(--hover-bg);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: var(--text-main);
+    }
+
+    .achievements-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .achievement-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: default;
+        position: relative;
+    }
+
+    .achievement-icon {
+        width: 60px;
+        height: 60px;
+        background-color: var(--hover-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        transition: border-color 0.2s, transform 0.1s;
+        position: relative;
+    }
+
+    .achievement-item:hover .achievement-icon {
+        border-color: var(--accent);
+        transform: scale(1.05);
+    }
+
+    .achievement-xp {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background-color: var(--accent);
+        color: #fff;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        border: 2px solid var(--bg-panel);
+    }
+
+    .achievement-name {
+        font-size: 0.8rem;
+        color: var(--text-main);
+        text-align: center;
+        max-width: 70px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .achievement-item:hover .achievement-name {
+        opacity: 1;
+    }
+
+    .achievement-xp-symbol {
+        font-size: 10px;
+        margin-left: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="portfolio-section" class="section active">
+    <h1>👤 Моё портфолио</h1>
+    <p style="margin-bottom: 4px;">Отслеживайте прогресс и достижения.</p>
+
+    <div class="portfolio-container">
+        <!-- Профиль с уровнем и опытом -->
+        <div class="profile-header">
+            <div class="profile-name">Алексей Кодов</div>
+            <div class="xp-container">
+                <div class="level-badge">Уровень 0</div>
+                <div class="xp-bar-wrapper">
+                    <div class="xp-bar">
+                        <div class="xp-fill" style="width: 0%;"></div>
+                    </div>
+                    <div class="xp-text">
+                        <span>0/1000</span>
+                        <span>⚡</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция с проектами и курсами -->
+        <div>
+            <div class="portfolio-section-title">Портфолио</div>
+            <div class="achievements-grid">
+                <!-- Левая колонка: завершённые курсы -->
+                <div class="achievements-column">
+                    <div class="column-header">
+                        <h3>🎓 Завершённые курсы</h3>
+                        <span class="column-count">0/5</span>
+                    </div>
+                    <div class="achievements-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                🐍
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock1</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                ⚡
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock2</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                🌐
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock3</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                🗄️
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock4</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                🐳
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Правая колонка: завершённые проекты -->
+                <div class="achievements-column">
+                    <div class="column-header">
+                        <h3>🚀 Завершённые проекты</h3>
+                        <span class="column-count">0/3</span>
+                    </div>
+                    <div class="achievements-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                📱
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock1</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                🎮
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock2</div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                🤖
+                                <span class="achievement-xp">0</span>
+                            </div>
+                            <div class="achievement-name">mock3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tasks-section" class="section"></div>
+<div id="courses-section" class="section"></div>
+<div id="workspace-section" class="section"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function(){
+        const sections = {
+            'portfolio-section': document.getElementById('portfolio-section'),
+            'tasks-section': document.getElementById('tasks-section'),
+            'courses-section': document.getElementById('courses-section'),
+            'workspace-section': document.getElementById('workspace-section')
+        };
+
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function switchSection(sectionId) {
+            Object.values(sections).forEach(s => s.classList.remove('active'));
+            if (sections[sectionId]) sections[sectionId].classList.add('active');
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                const section = this.dataset.section;
+                if (section) switchSection(section);
+            });
+        });
+    })();
+</script>
+{% endblock %}
