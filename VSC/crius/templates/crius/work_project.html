@@ -1,0 +1,139 @@
+{% extends 'crius/base.html' %}
+{% load static %}
+
+{% block title %}Very Sirius coders · проекты{% endblock %}
+
+{% block extra_css %}
+<style>
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: var(--accent);
+    }
+
+    .projects-wrapper {
+        position: relative;
+        margin-top: 24px;
+        flex: 1;
+        display: flex;
+        min-height: 0;
+    }
+
+    .projects-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .project-card {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px 24px;
+        transition: border-color 0.2s, transform 0.1s;
+    }
+
+    .project-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-1px);
+    }
+
+    .project-card h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-heading);
+        margin-bottom: 8px;
+    }
+
+    .project-card p {
+        font-size: 0.95rem;
+        color: var(--text-main);
+        opacity: 0.85;
+    }
+
+    .empty-state {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 50px 24px;
+        text-align: center;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.6;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        color: var(--text-main);
+        opacity: 0.7;
+    }
+
+    .fab {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background-color: var(--accent);
+        color: #fff;
+        border: none;
+        font-size: 1.8rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: opacity 0.2s, transform 0.1s;
+        z-index: 10;
+    }
+
+    .fab:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="work-projects-section" class="section active">
+    <a href="{% url 'crius:workspace' %}" class="back-link">← Назад к рабочему пространству</a>
+    <h1>🚀 Мои проекты</h1>
+    <p style="margin-bottom: 4px;">Создавайте и управляйте собственными проектами.</p>
+
+    <div class="projects-wrapper">
+        <div class="projects-list">
+            <div class="empty-state">
+                <div class="empty-icon">📂</div>
+                <p>У вас пока нет проектов.</p>
+                <p style="font-size: 0.9rem; margin-top: 8px;">Нажмите кнопку «+» чтобы создать первый проект.</p>
+            </div>
+        </div>
+        <button class="fab" onclick="alert('Создание проекта пока недоступно')" title="Создать проект">+</button>
+    </div>
+</div>
+
+<div id="tasks-section" class="section"></div>
+<div id="courses-section" class="section"></div>
+<div id="workspace-section" class="section"></div>
+<div id="portfolio-section" class="section"></div>
+{% endblock %}

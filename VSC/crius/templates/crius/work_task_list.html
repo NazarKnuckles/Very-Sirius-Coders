@@ -1,0 +1,221 @@
+{% extends 'crius/base.html' %}
+{% load static %}
+
+{% block title %}Very Sirius coders · задачи{% endblock %}
+
+{% block extra_css %}
+<style>
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 0.95rem;
+        margin-bottom: 16px;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: var(--accent);
+    }
+
+    .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 24px;
+        max-width: 900px;
+    }
+
+    .task-row {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: border-color 0.2s, transform 0.1s;
+    }
+
+    .task-row:hover {
+        border-color: var(--accent);
+        transform: translateY(-1px);
+    }
+
+    .task-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .progress-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: conic-gradient(var(--accent) 0deg, var(--accent) 120deg, var(--hover-bg) 120deg, var(--hover-bg) 360deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .progress-circle.completed {
+        background: var(--accent);
+    }
+
+    .progress-circle-inner {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--bg-panel);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-heading);
+    }
+
+    .progress-circle.completed .progress-circle-inner {
+        background-color: transparent;
+        color: #fff;
+        font-size: 1.1rem;
+    }
+
+    .task-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .task-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-heading);
+    }
+
+    .task-desc {
+        font-size: 0.95rem;
+        color: var(--text-main);
+        opacity: 0.85;
+    }
+
+    .tags {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        background-color: rgba(76, 175, 80, 0.12);
+        color: var(--accent);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid rgba(76, 175, 80, 0.25);
+    }
+
+    .tag.type-bug {
+        color: #e06c75;
+        border-color: rgba(224, 108, 117, 0.3);
+        background-color: rgba(224, 108, 117, 0.08);
+    }
+
+    .tag.type-opt {
+        color: #e5c07b;
+        border-color: rgba(229, 192, 123, 0.3);
+        background-color: rgba(229, 192, 123, 0.08);
+    }
+
+    .btn-solve {
+        background-color: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 40px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: opacity 0.2s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        white-space: nowrap;
+        margin-left: 20px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-solve:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="work-tasks-section" class="section active">
+    <a href="{% url 'crius:workspace' %}" class="back-link">← Назад к рабочему пространству</a>
+    <h1>📚 Вернуться к задачам</h1>
+    <p style="margin-bottom: 4px;">Задачи, которые вы решали ранее.</p>
+
+    <div class="task-list">
+        <div class="task-row">
+            <div class="task-left">
+                <div class="progress-circle completed">
+                    <div class="progress-circle-inner">✓</div>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">Бинарный поиск в массиве</div>
+                    <div class="task-desc">Найдите и исправьте логическую ошибку. Программа падает при отсутствии элемента.</div>
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag type-bug">Поиск ошибок</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'task:detail' pk=1 %}" class="btn-solve">Решить</a>
+        </div>
+
+        <div class="task-row">
+            <div class="task-left">
+                <div class="progress-circle" style="background: conic-gradient(var(--accent) 0deg, var(--accent) 216deg, var(--hover-bg) 216deg, var(--hover-bg) 360deg);">
+                    <div class="progress-circle-inner">3/5</div>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">Обработка логов лоудбалансера</div>
+                    <div class="task-desc">Скрипт работает за O(N²). Оптимизируйте, чтобы уложиться в 1.5 сек.</div>
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag type-opt">Оптимизация</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'task:detail' pk=2 %}" class="btn-solve">Решить</a>
+        </div>
+
+        <div class="task-row">
+            <div class="task-left">
+                <div class="progress-circle" style="background: conic-gradient(var(--accent) 0deg, var(--accent) 0deg, var(--hover-bg) 0deg, var(--hover-bg) 360deg);">
+                    <div class="progress-circle-inner">0/4</div>
+                </div>
+                <div class="task-info">
+                    <div class="task-title">Сортировка пузырьком</div>
+                    <div class="task-desc">Напишите классический алгоритм сортировки целых чисел с нуля.</div>
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Алгоритмы</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'task:detail' pk=3 %}" class="btn-solve">Решить</a>
+        </div>
+    </div>
+</div>
+
+<div id="tasks-section" class="section"></div>
+<div id="courses-section" class="section"></div>
+<div id="workspace-section" class="section"></div>
+<div id="portfolio-section" class="section"></div>
+{% endblock %}

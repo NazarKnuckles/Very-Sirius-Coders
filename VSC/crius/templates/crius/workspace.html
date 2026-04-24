@@ -63,21 +63,21 @@
     <p style="margin-bottom: 4px;">Управляйте задачами, проектами и курсами в одном месте.</p>
 
     <div class="workspace-container">
-        <div class="workspace-block">
+        <a href="{% url 'crius:work_task_list' %}" class="workspace-block" style="text-decoration: none; color: inherit;">
             <div class="workspace-icon">📚</div>
             <h2>Задачи</h2>
             <p>Вернитесь к предыдущим задачам.</p>
-        </div>
-        <div class="workspace-block">
+        </a>
+        <a href="{% url 'crius:work_project_list' %}" class="workspace-block" style="text-decoration: none; color: inherit;">
             <div class="workspace-icon">🚀</div>
             <h2>Проекты</h2>
             <p>Создавайте и управляйте собственными проектами.</p>
-        </div>
-        <div class="workspace-block">
+        </a>
+        <a href="{% url 'crius:work_course_list' %}" class="workspace-block" style="text-decoration: none; color: inherit;">
             <div class="workspace-icon">🎓</div>
             <h2>Курсы</h2>
             <p>Продолжите обучение на курсах.</p>
-        </div>
+        </a>
     </div>
 </div>
 

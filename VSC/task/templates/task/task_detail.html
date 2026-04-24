@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Very Sirius coders · задача</title>
+    <style>
+        :root {
+            --bg-main: #181a1f;
+            --bg-panel: #282c34;
+            --text-main: #abb2bf;
+            --text-heading: #ffffff;
+            --accent: #4caf50;
+            --border-color: #3e4451;
+            --hover-bg: #2c313a;
+            --danger: #e06c75;
+            --warning: #e5c07b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Верхняя панель */
+        .top-bar {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: border-color 0.2s, color 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .task-title-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        .top-bar-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-solution {
+            background: transparent;
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-solution:hover {
+            background: rgba(229, 192, 123, 0.1);
+        }
+
+        /* Основной контент */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Левая панель — описание задачи */
+        .task-description {
+            width: 35%;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .task-description h2 {
+            color: var(--text-heading);
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .task-description .task-text {
+            line-height: 1.7;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .task-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background-color: rgba(76, 175, 80, 0.12);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(76, 175, 80, 0.25);
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 20px 0;
+        }
+
+        .test-cases-section h3 {
+            color: var(--text-heading);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .test-case {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .test-case .input-label {
+            color: var(--warning);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .test-case .output-label {
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+
+        /* Правая панель — редактор */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #1e2229;
+        }
+
+        .editor-toolbar {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .lang-label {
+            background: var(--hover-bg);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+
+        .btn-run {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+            margin-left: auto;
+        }
+
+        .btn-run:hover {
+            opacity: 0.9;
+        }
+
+        .btn-test {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-test:hover {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .editor-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .mock-code {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #abb2bf;
+            white-space: pre-wrap;
+            background: #1e2229;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mock-code .keyword {
+            color: #c678dd;
+        }
+
+        .mock-code .function {
+            color: #61afef;
+        }
+
+        .mock-code .string {
+            color: #98c379;
+        }
+
+        .mock-code .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .mock-code .number {
+            color: #d19a66;
+        }
+
+        /* Нижняя панель вывода */
+        .output-panel {
+            background-color: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            padding: 16px 24px;
+            flex-shrink: 0;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .output-panel h3 {
+            color: var(--text-heading);
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .output-content {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a href="javascript:history.back()" class="back-btn">← Назад</a>
+    <span class="task-title-header">Mock 1</span>
+    <div class="top-bar-actions">
+        <button class="btn-solution" onclick="alert('Эталонное решение пока недоступно')">✨ Эталонное решение</button>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="task-description">
+        <h2>Mock 1</h2>
+        <p class="task-text">
+            Это моковый шаблон для будущей работы. Здесь будет отображаться полноценное описание задачи,
+            требования к входным и выходным данным, ограничения по времени и памяти.
+        </p>
+        <div class="task-tags">
+            <span class="tag">Python</span>
+            <span class="tag">Мок</span>
+        </div>
+
+        <hr class="divider">
+
+        <div class="test-cases-section">
+            <h3>📋 Примеры тестов</h3>
+
+            <div class="test-case">
+                <div class="input-label">Входные данные:</div>
+                <code>5, 3</code>
+                <div class="output-label">Ожидаемый вывод:</div>
+                <code>8</code>
+            </div>
+
+            <div class="test-case">
+                <div class="input-label">Входные данные:</div>
+                <code>10, 20</code>
+                <div class="output-label">Ожидаемый вывод:</div>
+                <code>30</code>
+            </div>
+        </div>
+    </div>
+    <div class="editor-panel">
+        <div class="editor-toolbar">
+            <span class="lang-label">Python 3.11</span>
+            <button class="btn-test" onclick="alert('Тесты запущены (мок)')">🧪 Тест</button>
+            <button class="btn-run" onclick="alert('Код выполнен (мок)')">▶ Запустить</button>
+        </div>
+        <div class="editor-area">
+            <pre class="mock-code"><span class="comment"># Mock 1 — шаблон решения</span>
+<span class="keyword">def</span> <span class="function">solution</span>(a, b):
+    <span class="comment"># Ваше решение здесь</span>
+    <span class="keyword">return</span> a + b
+
+<span class="comment"># Пример вызова</span>
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    result = solution(<span class="number">5</span>, <span class="number">3</span>)
+    <span class="function">print</span>(result)
+</pre>
+        </div>
+        <div class="output-panel">
+            <h3>📤 Вывод:</h3>
+            <div class="output-content">Готов к выполнению...</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

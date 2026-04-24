@@ -14,3 +14,12 @@ def workspace(request):
 
 def portfolio(request):
     return render(request, 'crius/portfolio.html')
+
+def work_task_list(request):
+    return render(request, 'crius/work_task_list.html')
+
+def work_course_list(request):
+    return render(request, 'crius/work_course.html')
+
+def work_project_list(request):
+    return render(request, 'crius/work_project.html')
