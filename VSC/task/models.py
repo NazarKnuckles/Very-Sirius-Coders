@@ -133,7 +133,7 @@ class TestCase(models.Model):
 # 3. User-related модели
 # ==========================================
 
-class UserTaskSolution(models.Model):
+class Submission(models.Model):
     """Решение задачи пользователем."""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -164,7 +164,6 @@ class UserTaskSolution(models.Model):
     class Meta:
         verbose_name = "Решение задачи"
         verbose_name_plural = "Решения задач"
-        unique_together = ('user', 'task')
         ordering = ['-solved_at']
 
     def __str__(self):
@@ -174,7 +173,7 @@ class UserTaskSolution(models.Model):
 class PublishedSolution(models.Model):
     """Опубликованное эталонное решение."""
     submission = models.ForeignKey(
-        'UserTaskSolution',
+        'Submission',
         on_delete=models.CASCADE,
         related_name='published',
         verbose_name='Решение'
@@ -196,6 +195,29 @@ class PublishedSolution(models.Model):
 
     def __str__(self):
         return f'Решение от {self.author.username} к {self.submission.task.title}'
+
+
+class SolutionVote(models.Model):
+    """Лайк/дизлайк опубликованного решения."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='solution_votes'
+    )
+    solution = models.ForeignKey(
+        'PublishedSolution',
+        on_delete=models.CASCADE,
+        related_name='votes'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Голос за решение'
+        verbose_name_plural = 'Голоса за решения'
+        unique_together = ('user', 'solution')
+
+    def str(self):
+        return f'{self.user.username} → {self.solution.id}'
 
 
 class Comment(models.Model):

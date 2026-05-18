@@ -36,6 +36,8 @@
         flex-direction: column;
         height: 220px;
         transition: border-color 0.2s, transform 0.1s;
+        text-decoration: none;
+        color: inherit;
     }
 
     .course-card:hover {
@@ -116,6 +118,27 @@
     .progress-text.completed {
         color: var(--accent);
     }
+
+    .empty-state {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 50px 24px;
+        text-align: center;
+        grid-column: 1 / -1;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.6;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        color: var(--text-main);
+        opacity: 0.7;
+    }
 </style>
 {% endblock %}
 
@@ -126,89 +149,26 @@
     <p style="margin-bottom: 4px;">Курсы, которые вы проходите или завершили.</p>
 
     <div class="courses-grid">
-        <div class="course-card">
-            <div class="course-title">Python для начинающих</div>
-            <div class="course-desc">Основы синтаксиса, типы данных, условия, циклы и функции.</div>
+        {% for course in courses %}
+        <a href="{% url 'course:detail' pk=course.pk %}" class="course-card">
+            <div class="course-title">{{ course.title }}</div>
+            <div class="course-desc">{{ course.description|truncatechars:120 }}</div>
             <div class="course-footer">
-                <span class="category-tag">Python</span>
-                <div class="progress-wrapper">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 100%;"></div>
-                    </div>
-                    <span class="progress-text completed">✓</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">Алгоритмы и структуры данных</div>
-            <div class="course-desc">Массивы, списки, деревья, графы и основные алгоритмы поиска.</div>
-            <div class="course-footer">
-                <span class="category-tag">Python</span>
-                <div class="progress-wrapper">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 80%;"></div>
-                    </div>
-                    <span class="progress-text">4/5</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">Веб-разработка на Django</div>
-            <div class="course-desc">Создание веб-приложений с использованием Django ORM и шаблонов.</div>
-            <div class="course-footer">
-                <span class="category-tag">Python</span>
-                <div class="progress-wrapper">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 50%;"></div>
-                    </div>
-                    <span class="progress-text">3/6</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">JavaScript для фронтенда</div>
-            <div class="course-desc">DOM, события, асинхронность и работа с API.</div>
-            <div class="course-footer">
-                <span class="category-tag">JavaScript</span>
-                <div class="progress-wrapper">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 12.5%;"></div>
-                    </div>
-                    <span class="progress-text">1/8</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">Базы данных и SQL</div>
-            <div class="course-desc">Проектирование, запросы, индексы и оптимизация.</div>
-            <div class="course-footer">
-                <span class="category-tag">SQL</span>
+                <span class="category-tag">{{ course.author.username }}</span>
                 <div class="progress-wrapper">
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: 0%;"></div>
                     </div>
-                    <span class="progress-text">0/10</span>
+                    <span class="progress-text">0/{{ course.modules.count }}</span>
                 </div>
             </div>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon"></div>
+            <p>Вы пока не записаны ни на один курс.</p>
         </div>
-
-        <div class="course-card">
-            <div class="course-title">Основы Docker и контейнеризация</div>
-            <div class="course-desc">Создание образов, Docker Compose и деплой приложений.</div>
-            <div class="course-footer">
-                <span class="category-tag">DevOps</span>
-                <div class="progress-wrapper">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 87.5%;"></div>
-                    </div>
-                    <span class="progress-text">7/8</span>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 

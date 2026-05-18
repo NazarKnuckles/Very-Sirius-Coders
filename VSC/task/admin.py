@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Difficulty, ProgrammingLanguage, SubmissionStatus, Category,
-    Task, TestCase, UserTaskSolution
+    Task, TestCase, Submission
 )
 
 
@@ -47,7 +47,7 @@ class TestCaseAdmin(admin.ModelAdmin):
     raw_id_fields = ('task',)
 
 
-@admin.register(UserTaskSolution)
+@admin.register(Submission)
 class UserTaskSolutionAdmin(admin.ModelAdmin):
     list_display = ('user', 'task', 'status', 'execution_time_ms', 'solved_at')
     list_filter = ('status', 'solved_at')

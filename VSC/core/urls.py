@@ -21,5 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('crius.urls')),
     path('task/', include('task.urls')),
+    path('course/', include('course.urls')),
+    path('users/', include('users.urls')),
 ]
 

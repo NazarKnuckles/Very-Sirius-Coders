@@ -101,79 +101,31 @@
     <p style="margin-bottom: 4px;">Практикуйтесь на реальных задачах.</p>
 
     <div class="task-list">
+        {% for task in tasks %}
         <div class="task-row">
             <div class="task-info">
-                <div class="task-title">Бинарный поиск в массиве</div>
-                <div class="task-desc">Найдите и исправьте логическую ошибку. Программа падает при отсутствии элемента.</div>
+                <div class="task-title">{{ task.title }}</div>
+                <div class="task-desc">{{ task.description|truncatechars:100 }}</div>
                 <div class="tags">
-                    <span class="tag">Python</span>
-                    <span class="tag type-bug">Поиск ошибок</span>
+                    <span class="tag">{{ task.language.name }}</span>
+                    {% if task.difficulty.name == 'Easy' %}
+                        <span class="tag">{{ task.difficulty.name }}</span>
+                    {% elif task.difficulty.name == 'Medium' %}
+                        <span class="tag type-opt">{{ task.difficulty.name }}</span>
+                    {% else %}
+                        <span class="tag type-bug">{{ task.difficulty.name }}</span>
+                    {% endif %}
                 </div>
             </div>
-            <a href="{% url 'task:detail' pk=1 %}" class="btn-solve" style="pointer-events: auto; cursor: pointer; text-decoration: none;">Решить</a>
+            <a href="{% url 'task:detail' pk=task.pk %}" class="btn-solve" style="pointer-events: auto; cursor: pointer; text-decoration: none;">Решить</a>
         </div>
-
-        <div class="task-row">
-            <div class="task-info">
-                <div class="task-title">Обработка логов лоудбалансера</div>
-                <div class="task-desc">Скрипт работает за O(N²). Оптимизируйте, чтобы уложиться в 1.5 сек.</div>
-                <div class="tags">
-                    <span class="tag">Python</span>
-                    <span class="tag type-opt">Оптимизация</span>
-                </div>
-            </div>
-            <a href="{% url 'task:detail' pk=1 %}" class="btn-solve" style="pointer-events: auto; cursor: pointer; text-decoration: none;">Решить</a>
-        </div>
-
-        <div class="task-row">
-            <div class="task-info">
-                <div class="task-title">Сортировка пузырьком</div>
-                <div class="task-desc">Напишите классический алгоритм сортировки целых чисел с нуля.</div>
-                <div class="tags">
-                    <span class="tag">Python</span>
-                    <span class="tag">Алгоритмы</span>
-                </div>
-            </div>
-            <a href="{% url 'task:detail' pk=1 %}" class="btn-solve" style="pointer-events: auto; cursor: pointer; text-decoration: none;">Решить</a>
-        </div>
+        {% empty %}
+        <p>Задачи пока не добавлены.</p>
+        {% endfor %}
     </div>
 </div>
 
 <div id="courses-section" class="section"></div>
 <div id="workspace-section" class="section"></div>
 <div id="portfolio-section" class="section"></div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    (function(){
-        const sections = {
-            'tasks-section': document.getElementById('tasks-section'),
-            'courses-section': document.getElementById('courses-section'),
-            'workspace-section': document.getElementById('workspace-section'),
-            'portfolio-section': document.getElementById('portfolio-section')
-        };
-
-        const navItems = document.querySelectorAll('.nav-item');
-
-        function switchSection(sectionId) {
-            Object.values(sections).forEach(s => s.classList.remove('active'));
-            if (sections[sectionId]) sections[sectionId].classList.add('active');
-
-            navItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.section === sectionId) {
-                    item.classList.add('active');
-                }
-            });
-        }
-
-        navItems.forEach(item => {
-            item.addEventListener('click', function(e) {
-                const section = this.dataset.section;
-                if (section) switchSection(section);
-            });
-        });
-    })();
-</script>
 {% endblock %}

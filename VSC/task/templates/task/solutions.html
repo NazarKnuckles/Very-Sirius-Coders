@@ -1,0 +1,662 @@
+{% load static %}
+{% load dict_filters %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Very Sirius coders · решения</title>
+    <style>
+        :root {
+            --bg-main: #181a1f;
+            --bg-panel: #282c34;
+            --text-main: #abb2bf;
+            --text-heading: #ffffff;
+            --accent: #4caf50;
+            --border-color: #3e4451;
+            --hover-bg: #2c313a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        .solutions-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .solutions-container {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .solutions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .solutions-header h2 {
+            color: var(--text-heading);
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .solutions-count {
+            background-color: var(--hover-bg);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .solution-card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+            transition: border-color 0.2s;
+        }
+
+        .solution-card:hover {
+            border-color: var(--accent);
+        }
+
+        .solution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .solution-author {
+            font-weight: 600;
+            color: var(--text-heading);
+            font-size: 1.05rem;
+        }
+
+        .solution-date {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .solution-code {
+            background: #1e2229;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 410px;
+            overflow: hidden;
+            position: relative;
+            text-align: left;
+            margin: 0;
+        }
+
+        .solution-code.truncated::after {
+            content: '...';
+            position: absolute;
+            bottom: 8px;
+            right: 16px;
+            color: var(--text-main);
+            font-weight: bold;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, transparent, #1e2229 40%);
+            padding-left: 24px;
+        }
+
+        .solution-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .solution-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-vote {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-vote:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-vote.voted {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(76, 175, 80, 0.12);
+        }
+
+        .btn-vote:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-comment-toggle, .btn-write-comment {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-comment-toggle:hover, .btn-write-comment:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .comments-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .comments-section.open {
+            display: block;
+        }
+
+        .comment-item {
+            background: var(--bg-main);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .comment-content {
+            font-size: 0.9rem;
+        }
+
+        .comment-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            resize: vertical;
+            min-height: 36px;
+            max-height: 100px;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn-send-comment {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .btn-send-comment:hover {
+            opacity: 0.9;
+        }
+
+        .btn-load-more {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            width: 100%;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .btn-load-more:hover {
+            border-color: var(--accent);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            opacity: 0.5;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+            padding-bottom: 24px;
+        }
+
+        .pagination a,
+        .pagination span {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .pagination a:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .pagination .current {
+            background-color: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .pagination .disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .text-counter {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            resize: none;
+            min-height: 36px;
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a href="{% url 'task:detail' pk=task.pk %}" class="back-btn">← Назад к задаче</a>
+    <span class="page-title">Решения: {{ task.title }}</span>
+</div>
+
+<div class="solutions-wrapper">
+    <div class="solutions-container">
+        <div class="solutions-header">
+            <h2>👥 Пользовательские решения</h2>
+            <span class="solutions-count">{{ page_obj.paginator.count }} решений</span>
+        </div>
+
+        {% for solution in solutions %}
+        <div class="solution-card" id="solution-{{ solution.id }}">
+            <div class="solution-header">
+                <span class="solution-author">{{ solution.author.username }}</span>
+                <span class="solution-date">{{ solution.published_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            <pre class="solution-code">{{ solution.submission.code }}</pre>
+            <div class="solution-footer">
+                <div class="solution-stats">
+                    <button class="btn-vote {% if user.is_authenticated and solution.id in voted_ids %}voted{% endif %}"
+                            onclick="toggleVote({{ solution.id }}, this)"
+                            {% if not user.is_authenticated %}disabled title="Войдите чтобы голосовать"{% endif %}>
+                        👍 <span class="vote-count">{{ solution.upvotes }}</span>
+                    </button>
+                    <button class="btn-comment-toggle" onclick="toggleComments({{ solution.id }})">
+                        💬 <span class="comment-count" id="comment-count-{{ solution.id }}">
+                            {% with count=comment_counts|get_item:solution.id %}
+                                {% if count %}
+                                    {% if count > 99 %}99+{% else %}{{ count }}{% endif %}
+                                {% else %}0{% endif %}
+                            {% endwith %}
+                        </span>
+                    </button>
+                </div>
+                <button class="btn-write-comment" onclick="focusCommentInput({{ solution.id }})">✏️ Комментировать</button>
+            </div>
+
+            <!-- Секция комментариев (скрыта) -->
+            <div class="comments-section" id="comments-{{ solution.id }}">
+                <div class="comment-input-row">
+                    <textarea class="comment-input" id="comment-input-{{ solution.id }}"
+                              placeholder="Напишите комментарий..." maxlength="1000"
+                              rows="1"
+                              oninput="autoResize(this); updateCharCounter({{ solution.id }})"></textarea>
+                    <button class="btn-send-comment" onclick="addComment({{ solution.id }})">Отправить</button>
+                </div>
+                <div class="text-counter" id="char-counter-{{ solution.id }}">0/1000</div>
+                <div class="comments-list" id="comments-list-{{ solution.id }}"></div>
+                <button class="btn-load-more" id="load-more-{{ solution.id }}"
+                        style="display:none" onclick="openAllComments({{ solution.id }})">
+                    Показать все комментарии →
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <p>Нет опубликованных решений.</p>
+        </div>
+        {% endfor %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">««</a>
+                <a href="?page={{ page_obj.previous_page_number }}">«</a>
+            {% else %}
+                <span class="disabled">««</span>
+                <span class="disabled">«</span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+                    {% if num == page_obj.number %}
+                        <span class="current">{{ num }}</span>
+                    {% else %}
+                        <a href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">»</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">»»</a>
+            {% else %}
+                <span class="disabled">»</span>
+                <span class="disabled">»»</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Обрезка длинного кода
+    document.querySelectorAll('.solution-code').forEach(block => {
+        const lines = block.textContent.split('\n').length;
+        if (lines > 256) {
+            const truncated = block.textContent.split('\n').slice(0, 256).join('\n') + '\n...';
+            block.textContent = truncated;
+            block.classList.add('truncated');
+        }
+    });
+
+    // Голосование
+    function toggleVote(solutionId, button) {
+        fetch('/task/solution/' + solutionId + '/vote/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const countSpan = button.querySelector('.vote-count');
+                countSpan.textContent = data.upvotes;
+                if (data.action === 'added') {
+                    button.classList.add('voted');
+                } else {
+                    button.classList.remove('voted');
+                }
+            }
+        })
+        .catch(() => alert('Ошибка'));
+    }
+
+    // Комментарии
+    const loadedComments = {};
+
+    function toggleComments(solutionId) {
+        const section = document.getElementById('comments-' + solutionId);
+        const isOpen = section.classList.contains('open');
+
+        if (isOpen) {
+            section.classList.remove('open');
+        } else {
+            section.classList.add('open');
+            if (!loadedComments[solutionId]) {
+                loadComments(solutionId, 0);
+            }
+        }
+    }
+
+    function focusCommentInput(solutionId) {
+        const section = document.getElementById('comments-' + solutionId);
+        section.classList.add('open');
+        document.getElementById('comment-input-' + solutionId).focus();
+        if (!loadedComments[solutionId]) {
+            loadComments(solutionId, 0);
+        }
+    }
+
+    function loadComments(solutionId, offset) {
+        fetch('/task/solution/' + solutionId + '/comments/load/?offset=' + offset)
+            .then(response => response.json())
+            .then(data => {
+                if (!loadedComments[solutionId]) {
+                    loadedComments[solutionId] = [];
+                }
+
+                const list = document.getElementById('comments-list-' + solutionId);
+                if (offset === 0) list.innerHTML = '';
+
+                data.comments.forEach(c => {
+                    loadedComments[solutionId].push(c);
+                    const div = document.createElement('div');
+                    div.className = 'comment-item';
+                    div.innerHTML = `
+                        <div class="comment-header">
+                            <strong>${c.author}</strong>
+                            <span>${c.date}</span>
+                        </div>
+                        <div class="comment-content">${escapeHtml(c.content)}</div>
+                    `;
+                    list.appendChild(div);
+                });
+
+                // Обновить счётчик на кнопке
+                const countSpan = document.getElementById('comment-count-' + solutionId);
+                if (countSpan) {
+                    if (data.total > 99) {
+                        countSpan.textContent = '99+';
+                    } else {
+                        countSpan.textContent = data.total;
+                    }
+                }
+
+                // Показать кнопку "Показать все", если есть ещё комментарии
+                const loadMoreBtn = document.getElementById('load-more-' + solutionId);
+                if (loadMoreBtn) {
+                    loadMoreBtn.style.display = data.has_more ? 'block' : 'none';
+                }
+            });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function addComment(solutionId) {
+        const input = document.getElementById('comment-input-' + solutionId);
+        const content = input.value.trim();
+
+        if (!content) return;
+        if (content.length > 1000) {
+            alert('Максимум 1000 символов');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('content', content);
+
+        fetch('/task/solution/' + solutionId + '/comment/add/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const list = document.getElementById('comments-list-' + solutionId);
+                const div = document.createElement('div');
+                div.className = 'comment-item';
+                div.innerHTML = `
+                    <div class="comment-header">
+                        <strong>${data.comment.author}</strong>
+                        <span>${data.comment.date}</span>
+                    </div>
+                    <div class="comment-content">${escapeHtml(data.comment.content)}</div>
+                `;
+                list.appendChild(div);
+                input.value = '';
+                input.style.height = 'auto';
+                updateCharCounter(solutionId);
+
+                // Обновить счётчик
+                const countSpan = document.getElementById('comment-count-' + solutionId);
+                if (countSpan) {
+                    const current = parseInt(countSpan.textContent) || 0;
+                    const newCount = current + 1;
+                    countSpan.textContent = newCount > 99 ? '99+' : newCount;
+                }
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(() => alert('Ошибка'));
+    }
+
+    function updateCharCounter(solutionId) {
+        const input = document.getElementById('comment-input-' + solutionId);
+        document.getElementById('char-counter-' + solutionId).textContent =
+            input.value.length + '/1000';
+    }
+
+    function openAllComments(solutionId) {
+        window.location.href = '/task/solution/' + solutionId + '/comments/';
+    }
+
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        const maxHeight = 120; // 6 строк × 20px line-height
+        textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+    }
+</script>
+
+</body>
+</html>

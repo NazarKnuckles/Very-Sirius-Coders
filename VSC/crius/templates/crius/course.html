@@ -21,6 +21,8 @@
         flex-direction: column;
         height: 200px;
         transition: border-color 0.2s, transform 0.1s;
+        text-decoration: none;
+        color: inherit;
     }
 
     .course-card:hover {
@@ -69,53 +71,19 @@
     <p style="margin-bottom: 4px;">Изучайте программирование с нуля или углубляйте знания.</p>
 
     <div class="courses-grid">
-        <div class="course-card">
-            <div class="course-title">Python для начинающих</div>
-            <div class="course-desc">Основы синтаксиса, типы данных, условия, циклы и функции.</div>
+        {% for course in courses %}
+        <a href="{% url 'course:detail' pk=course.pk %}" class="course-card">
+            <div class="course-title">{{ course.title }}</div>
+            <div class="course-desc">{{ course.description|truncatechars:120 }}</div>
             <div class="course-category">
-                <span class="category-tag">Python</span>
+                <span class="category-tag">{{ course.author.username }}</span>
             </div>
+        </a>
+        {% empty %}
+        <div class="course-card" style="justify-content: center; align-items: center;">
+            <p style="opacity: 0.5;">Курсы пока не добавлены.</p>
         </div>
-
-        <div class="course-card">
-            <div class="course-title">Алгоритмы и структуры данных</div>
-            <div class="course-desc">Массивы, списки, деревья, графы и основные алгоритмы поиска.</div>
-            <div class="course-category">
-                <span class="category-tag">Python</span>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">Веб-разработка на Django</div>
-            <div class="course-desc">Создание веб-приложений с использованием Django ORM и шаблонов.</div>
-            <div class="course-category">
-                <span class="category-tag">Python</span>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">JavaScript для фронтенда</div>
-            <div class="course-desc">DOM, события, асинхронность и работа с API.</div>
-            <div class="course-category">
-                <span class="category-tag">JavaScript</span>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">Базы данных и SQL</div>
-            <div class="course-desc">Проектирование, запросы, индексы и оптимизация.</div>
-            <div class="course-category">
-                <span class="category-tag">SQL</span>
-            </div>
-        </div>
-
-        <div class="course-card">
-            <div class="course-title">Основы Docker и контейнеризация</div>
-            <div class="course-desc">Создание образов, Docker Compose и деплой приложений.</div>
-            <div class="course-category">
-                <span class="category-tag">DevOps</span>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 
