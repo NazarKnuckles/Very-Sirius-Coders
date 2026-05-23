@@ -12,4 +12,8 @@ urlpatterns = [
     path('solution/<int:solution_pk>/comments/', views.solution_comments, name='solution_comments'),
     path('solution/<int:solution_pk>/comment/add/', views.add_comment, name='add_comment'),
     path('solution/<int:solution_pk>/comments/load/', views.load_comments, name='load_comments'),
+    path('<int:pk>/status/', views.check_status, name='check_status'),
+    path('<int:pk>/run/', views.run_code, name='run_code'),
+    path('<int:pk>/test/', views.test_code, name='test_code'),
+    path('<int:pk>/status/', views.check_status, name='check_status'),
 ]

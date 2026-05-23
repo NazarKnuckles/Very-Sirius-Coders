@@ -248,6 +248,9 @@
 
         .comment-content {
             font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .comment-input-row {
@@ -381,6 +384,28 @@
             outline: none;
             border-color: var(--accent);
         }
+
+        .code-fade {
+            position: relative;
+            margin-top: -40px;
+            height: 40px;
+            background: linear-gradient(to top, var(--bg-panel), transparent);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 8px;
+        }
+
+        .btn-show-full {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-show-full:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -403,7 +428,12 @@
                 <span class="solution-author">{{ solution.author.username }}</span>
                 <span class="solution-date">{{ solution.published_at|date:"d.m.Y H:i" }}</span>
             </div>
-            <pre class="solution-code">{{ solution.submission.code }}</pre>
+            <pre class="solution-code" id="code-block-{{ solution.id }}">{{ solution.submission.code }}</pre>
+            <div class="code-fade" id="code-fade-{{ solution.id }}" style="display:none;">
+                <a href="{% url 'task:solution_comments' solution_pk=solution.id %}" class="btn-show-full">
+                    Показать полностью →
+                </a>
+            </div>
             <div class="solution-footer">
                 <div class="solution-stats">
                     <button class="btn-vote {% if user.is_authenticated and solution.id in voted_ids %}voted{% endif %}"
@@ -488,6 +518,11 @@
             const truncated = block.textContent.split('\n').slice(0, 256).join('\n') + '\n...';
             block.textContent = truncated;
             block.classList.add('truncated');
+
+            // Показать ссылку "Показать полностью"
+            const solutionId = block.id.replace('code-block-', '');
+            const fade = document.getElementById('code-fade-' + solutionId);
+            if (fade) fade.style.display = 'flex';
         }
     });
 
@@ -560,7 +595,7 @@
                             <strong>${c.author}</strong>
                             <span>${c.date}</span>
                         </div>
-                        <div class="comment-content">${escapeHtml(c.content)}</div>
+                        <div class="comment-content">${formatContent(c.content)}</div>
                     `;
                     list.appendChild(div);
                 });
@@ -620,7 +655,7 @@
                         <strong>${data.comment.author}</strong>
                         <span>${data.comment.date}</span>
                     </div>
-                    <div class="comment-content">${escapeHtml(data.comment.content)}</div>
+                    <div class="comment-content">${formatContent(data.comment.content)}</div>
                 `;
                 list.appendChild(div);
                 input.value = '';
@@ -655,6 +690,10 @@
         textarea.style.height = 'auto';
         const maxHeight = 120; // 6 строк × 20px line-height
         textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+    }
+
+    function formatContent(text) {
+        return escapeHtml(text).replace(/\n/g, '<br>');
     }
 </script>
 

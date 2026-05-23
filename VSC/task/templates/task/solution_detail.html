@@ -112,6 +112,8 @@
             word-break: break-word;
             text-align: left;
             margin: 0;
+            max-height: none;
+            overflow: visible;
         }
 
         .solution-footer {
@@ -134,12 +136,78 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-vote:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .btn-vote.voted {
             border-color: var(--accent);
             color: var(--accent);
             background: rgba(76, 175, 80, 0.12);
+        }
+
+        .btn-vote:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .section-title {
+            color: var(--text-heading);
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .comment-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            resize: none;
+            min-height: 36px;
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn-send {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .btn-send:hover {
+            opacity: 0.9;
+        }
+
+        .text-counter {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            text-align: right;
+            margin-top: 2px;
         }
 
         .comment-item {
@@ -157,34 +225,22 @@
             opacity: 0.7;
         }
 
+        .comment-author {
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
         .comment-content {
             font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
-        .comment-input-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .comment-input {
-            flex: 1;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.85rem;
-        }
-
-        .btn-send {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -197,6 +253,7 @@
 
 <div class="content-wrapper" id="scroll-container">
     <div class="content-container">
+        <!-- Карточка решения -->
         <div class="solution-card">
             <div class="solution-header">
                 <span class="solution-author">{{ solution.author.username }}</span>
@@ -204,33 +261,43 @@
             </div>
             <pre class="solution-code">{{ solution.submission.code }}</pre>
             <div class="solution-footer">
-                <button class="btn-vote {% if voted %}voted{% endif %}" onclick="toggleVote({{ solution.id }}, this)">
+                <button class="btn-vote {% if voted %}voted{% endif %}"
+                        onclick="toggleVote({{ solution.id }}, this)"
+                        {% if not user.is_authenticated %}disabled title="Войдите чтобы голосовать"{% endif %}>
                     👍 <span class="vote-count">{{ solution.upvotes }}</span>
                 </button>
             </div>
         </div>
 
-        <h3 style="color: var(--text-heading);">💬 Комментарии ({{ page_obj.paginator.count }})</h3>
+        <!-- Заголовок комментариев -->
+        <h3 class="section-title">💬 Комментарии ({{ page_obj.paginator.count }})</h3>
 
+        <!-- Поле ввода комментария -->
         <div class="comment-input-row">
-            <textarea class="comment-input" id="comment-input" placeholder="Напишите комментарий..." maxlength="1000"></textarea>
+            <textarea class="comment-input" id="comment-input"
+                      placeholder="Напишите комментарий..." maxlength="1000"
+                      rows="1"
+                      oninput="autoResize(this); updateCharCounter()"></textarea>
             <button class="btn-send" onclick="addComment({{ solution.id }})">Отправить</button>
         </div>
+        <div class="text-counter" id="char-counter">0/1000</div>
 
+        <!-- Список комментариев -->
         <div id="comments-list">
             {% for comment in comments %}
             <div class="comment-item">
                 <div class="comment-header">
-                    <strong>{{ comment.user.username }}</strong>
+                    <span class="comment-author">{{ comment.user.username }}</span>
                     <span>{{ comment.created_at|date:"d.m.Y H:i" }}</span>
                 </div>
-                <div class="comment-content">{{ comment.content }}</div>
+                <div class="comment-content">{{ comment.content|linebreaksbr }}</div>
             </div>
             {% empty %}
-            <p style="opacity:0.5; text-align:center;">Нет комментариев</p>
+            <div class="empty-state">Нет комментариев. Будьте первым!</div>
             {% endfor %}
         </div>
 
+        <!-- Sentinel для бесконечного скролла -->
         <div id="loading-sentinel" style="height:1px;"></div>
     </div>
 </div>
@@ -239,6 +306,7 @@
     let currentOffset = {{ page_obj.end_index|default:0 }};
     let loading = false;
 
+    // Бесконечный скролл
     const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && !loading) {
             loadMore();
@@ -255,7 +323,13 @@
                 data.comments.forEach(c => {
                     const div = document.createElement('div');
                     div.className = 'comment-item';
-                    div.innerHTML = `<div class="comment-header"><strong>${c.author}</strong><span>${c.date}</span></div><div class="comment-content">${c.content}</div>`;
+                    div.innerHTML = `
+                        <div class="comment-header">
+                            <span class="comment-author">${escapeHtml(c.author)}</span>
+                            <span>${c.date}</span>
+                        </div>
+                        <div class="comment-content">${formatContent(c.content)}</div>
+                    `;
                     list.appendChild(div);
                 });
                 currentOffset += data.comments.length;
@@ -263,6 +337,7 @@
             });
     }
 
+    // Голосование
     function toggleVote(id, btn) {
         fetch('/task/solution/' + id + '/vote/', {
             method: 'POST',
@@ -277,10 +352,16 @@
         });
     }
 
+    // Добавление комментария
     function addComment(id) {
         const input = document.getElementById('comment-input');
         const content = input.value.trim();
+
         if (!content) return;
+        if (content.length > 1000) {
+            alert('Максимум 1000 символов');
+            return;
+        }
 
         const fd = new FormData();
         fd.append('content', content);
@@ -293,13 +374,54 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
+                const list = document.getElementById('comments-list');
+                // Убрать empty state если есть
+                const empty = list.querySelector('.empty-state');
+                if (empty) empty.remove();
+
                 const div = document.createElement('div');
                 div.className = 'comment-item';
-                div.innerHTML = `<div class="comment-header"><strong>${data.comment.author}</strong><span>${data.comment.date}</span></div><div class="comment-content">${data.comment.content}</div>`;
-                document.getElementById('comments-list').appendChild(div);
+                div.innerHTML = `
+                    <div class="comment-header">
+                        <span class="comment-author">${escapeHtml(data.comment.author)}</span>
+                        <span>${data.comment.date}</span>
+                    </div>
+                    <div class="comment-content">${formatContent(data.comment.content)}</div>
+                `;
+                list.appendChild(div);
                 input.value = '';
+                input.style.height = 'auto';
+                updateCharCounter();
+            } else {
+                alert(data.error);
             }
-        });
+        })
+        .catch(() => alert('Ошибка'));
+    }
+
+    // Авто-расширение поля ввода
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        const maxHeight = 120;
+        textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+    }
+
+    // Счётчик символов
+    function updateCharCounter() {
+        const input = document.getElementById('comment-input');
+        document.getElementById('char-counter').textContent =
+            input.value.length + '/1000';
+    }
+
+    // Экранирование HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatContent(text) {
+        return escapeHtml(text).replace(/\n/g, '<br>');
     }
 </script>
 

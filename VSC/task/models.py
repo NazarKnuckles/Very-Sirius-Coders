@@ -161,6 +161,9 @@ class Submission(models.Model):
 
     solved_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата решения")
 
+    passed_tests = models.IntegerField(default=0, verbose_name="Пройдено тестов")
+    total_tests = models.IntegerField(default=0, verbose_name="Всего тестов")
+
     class Meta:
         verbose_name = "Решение задачи"
         verbose_name_plural = "Решения задач"

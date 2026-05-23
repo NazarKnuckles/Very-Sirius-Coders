@@ -1,5 +1,6 @@
 {% extends 'crius/base.html' %}
 {% load static %}
+{% load dict_filters %}
 
 {% block title %}Very Sirius coders · курсы{% endblock %}
 
@@ -156,16 +157,28 @@
             <div class="course-footer">
                 <span class="category-tag">{{ course.author.username }}</span>
                 <div class="progress-wrapper">
+                    {% with progress=progress_dict|get_item:course.id %}
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: 0%;"></div>
+                        {% if progress.total > 0 %}
+                            <div class="progress-fill" style="width: {% widthratio progress.solved progress.total 100 %}%;"></div>
+                        {% else %}
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        {% endif %}
                     </div>
-                    <span class="progress-text">0/{{ course.modules.count }}</span>
+                    <span class="progress-text {% if progress.solved == progress.total and progress.total > 0 %}completed{% endif %}">
+                        {% if progress.solved == progress.total and progress.total > 0 %}
+                            ✓
+                        {% else %}
+                            {{ progress.solved }}/{{ progress.total }}
+                        {% endif %}
+                    </span>
+                    {% endwith %}
                 </div>
             </div>
         </a>
         {% empty %}
         <div class="empty-state">
-            <div class="empty-icon"></div>
+            <div class="empty-icon">📚</div>
             <p>Вы пока не записаны ни на один курс.</p>
         </div>
         {% endfor %}

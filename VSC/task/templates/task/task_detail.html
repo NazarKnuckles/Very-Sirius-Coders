@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -312,6 +311,45 @@
             display: block;
         }
 
+        .test-result {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .test-result.passed {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+        .test-result.failed {
+            background: rgba(224, 108, 117, 0.1);
+            border: 1px solid #e06c75;
+            color: #e06c75;
+        }
+        .test-result.error {
+            background: rgba(229, 192, 123, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        .test-detail {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            white-space: pre-wrap;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-badge.running { background: rgba(229, 192, 123, 0.2); color: var(--warning); }
+        .status-badge.accepted { background: rgba(76, 175, 80, 0.2); color: var(--accent); }
+        .status-badge.wrong { background: rgba(224, 108, 117, 0.2); color: #e06c75; }
+        .status-badge.error { background: rgba(224, 108, 117, 0.2); color: #e06c75; }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -321,7 +359,7 @@
 <body>
 
 <div class="top-bar">
-    <a href="/tasks/" class="back-btn">← Назад</a>
+    <a href="#" class="back-btn" onclick="history.back(); return false;">← Назад</a>
     <span class="task-title-header">{{ task.title }}</span>
     <div class="top-bar-actions">
         <button id="btn-publish" class="btn-publish {% if user_has_published %}show{% endif %}" onclick="publishSolution()">📤 Опубликовать</button>
@@ -391,6 +429,7 @@
 <script>
     let codeTested = false;
     let lastTestedCode = '';
+    let pollingInterval = null;
 
     function showToast(message, type) {
         const toast = document.getElementById('toast');
@@ -410,15 +449,10 @@
             return;
         }
 
-        document.getElementById('output').textContent = 'Выполнение...\n✅ Тесты пройдены (мок)';
-        codeTested = true;
-        lastTestedCode = code;
+        document.getElementById('output').innerHTML = '<span class="status-badge running">Выполняется...</span>';
+        document.getElementById('btn-publish').classList.remove('show');
 
-        document.getElementById('btn-publish').classList.add('show');
-        document.getElementById('btn-user-solutions').style.display = 'inline-block';
-
-        // Сохраняем решение в портфолио
-        saveToPortfolio(code, 'Accepted');
+        executeOnServer(code, 'run');
     }
 
     function testCode() {
@@ -428,52 +462,177 @@
             return;
         }
 
-        document.getElementById('output').textContent = 'Тестирование...\n🧪 Пройдено тестов: 3/3 (мок)';
-        codeTested = true;
-        lastTestedCode = code;
+        document.getElementById('output').innerHTML = '<span class="status-badge running">Тестируется...</span>';
+        document.getElementById('btn-publish').classList.remove('show');
 
-        document.getElementById('btn-publish').classList.add('show');
-        document.getElementById('btn-user-solutions').style.display = 'inline-block';
-
-        // Сохраняем решение в портфолио
-        saveToPortfolio(code, 'Accepted');
+        executeOnServer(code, 'test');
     }
 
-    function saveToPortfolio(code, statusName) {
-        {% if user.is_authenticated %}
+    async function executeOnServer(code, mode) {
+        const url = mode === 'test'
+            ? '{% url "task:test_code" pk=task.pk %}'
+            : '{% url "task:run_code" pk=task.pk %}';
+
         const formData = new FormData();
         formData.append('code', code);
-        formData.append('status', statusName);
 
-        fetch('{% url "task:save_solution" pk=task.pk %}', {
+        fetch(url, {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                console.log('Решение сохранено в портфолио');
+            codeTested = true;
+            lastTestedCode = code;
+
+            // Показывать кнопку "Опубликовать" только если can_publish = true
+            if (data.can_publish) {
+                document.getElementById('btn-publish').classList.add('show');
+            } else {
+                document.getElementById('btn-publish').classList.remove('show');
             }
+
+            document.getElementById('btn-user-solutions').style.display = 'inline-block';
+
+            displayResults(data);
         })
         .catch(() => {
-            console.log('Решение сохранено локально (мок)');
+            showOutput('error', 'Ошибка соединения с сервером');
         });
+    }
+
+
+    async function testCodeOnServer(code) {
+        {% if user.is_authenticated %}
+        const formData = new FormData();
+        formData.append('code', code);
+        formData.append('status', 'Running');
+
+        try {
+            const response = await fetch('{% url "task:save_solution" pk=task.pk %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                codeTested = true;
+                lastTestedCode = code;
+                document.getElementById('btn-publish').classList.add('show');
+                document.getElementById('btn-user-solutions').style.display = 'inline-block';
+
+                // Начинаем опрос статуса
+                startPolling();
+            } else {
+                showOutput('error', 'Ошибка отправки решения');
+            }
+        } catch(e) {
+            showOutput('error', 'Ошибка соединения с сервером');
+        }
         {% else %}
-        console.log('Войдите, чтобы сохранять решения в портфолио');
+        // Для неавторизованных — мок
+        showMockOutput();
         {% endif %}
+    }
+
+    function startPolling() {
+        if (pollingInterval) clearInterval(pollingInterval);
+
+        pollingInterval = setInterval(async () => {
+            try {
+                const response = await fetch('{% url "task:check_status" pk=task.pk %}');
+                const data = await response.json();
+
+                if (data.status === 'Accepted' || data.status === 'Wrong Answer' || data.status === 'Error') {
+                    clearInterval(pollingInterval);
+                    displayResults(data);
+                }
+            } catch(e) {
+                clearInterval(pollingInterval);
+                showMockOutput();
+            }
+        }, 1000); // Проверяем каждую секунду
+    }
+
+    function displayResults(data) {
+        let html = '';
+
+        const statusClass = data.status === 'Accepted' ? 'accepted' :
+                           data.status === 'Wrong Answer' ? 'wrong' : 'error';
+        const statusEmoji = data.status === 'Accepted' ? '✅' :
+                           data.status === 'Wrong Answer' ? '❌' : '⚠️';
+        const modeLabel = data.mode === 'test' ? ' (тест)' : ' (запуск)';
+
+        html += `<div><span class="status-badge ${statusClass}">${statusEmoji} ${data.status}${modeLabel}</span></div>`;
+        html += `<div style="margin-top: 8px;">Пройдено тестов: ${data.passed_tests}/${data.total_tests}</div>`;
+
+        if (data.stopped_early) {
+            html += `<div style="color: var(--warning);">⏹ Проверка остановлена на первом проваленном тесте</div>`;
+        }
+
+        // Сообщение об опыте
+        if (data.all_passed && data.mode === 'run') {
+            html += `<div style="color: var(--accent); margin-top: 4px;">⚡ Опыт начислен! Все тесты пройдены.</div>`;
+        } else if (!data.all_passed && data.mode === 'run') {
+            html += `<div style="opacity: 0.7; margin-top: 4px;">Опыт не начислен — не все тесты пройдены.</div>`;
+        }
+
+        html += `<div>Время: ${data.execution_time_ms || 0} мс</div>`;
+
+        // Детали по тестам
+        if (data.test_results && data.test_results.length > 0) {
+            html += '<div style="margin-top: 12px;">';
+            data.test_results.forEach((result, i) => {
+                const resultClass = result.passed ? 'passed' : result.error ? 'error' : 'failed';
+                const icon = result.passed ? '✅' : result.error ? '⚠️' : '❌';
+
+                html += `<div class="test-result ${resultClass}">`;
+                html += `<strong>Тест ${i + 1}: ${icon}</strong>`;
+
+                if (!result.passed && result.input !== '[скрытый тест]') {
+                    html += `<div class="test-detail">`;
+                    html += `Вход: ${result.input || '—'}<br>`;
+                    html += `Ожидалось: ${result.expected || '—'}<br>`;
+                    html += `Получено: ${result.output || result.error || '—'}`;
+                    html += `</div>`;
+                } else if (!result.passed) {
+                    html += `<div class="test-detail">Скрытый тест не пройден</div>`;
+                }
+                html += `</div>`;
+            });
+            html += '</div>';
+        }
+
+        document.getElementById('output').innerHTML = html;
+    }
+
+    function showMockOutput() {
+        let html = '';
+        html += '<div><span class="status-badge accepted">✅ Accepted</span></div>';
+        html += '<div style="margin-top: 8px;">Пройдено тестов: 3/3</div>';
+        html += '<div>Время: 45 мс</div>';
+        document.getElementById('output').innerHTML = html;
+
+        codeTested = true;
+        lastTestedCode = getCode();
+        document.getElementById('btn-publish').classList.add('show');
+        document.getElementById('btn-user-solutions').style.display = 'inline-block';
+    }
+
+    function showOutput(type, message) {
+        const icon = type === 'error' ? '⚠️' : '✅';
+        document.getElementById('output').innerHTML =
+            `<div class="test-result ${type}">${icon} ${message}</div>`;
     }
 
     function publishSolution() {
         const code = getCode();
-
         if (!code.trim()) {
             showToast('Нечего публиковать', '');
             return;
         }
-
         if (!codeTested || code !== lastTestedCode) {
             showToast('Сначала запустите код повторно после изменений', '');
             return;
@@ -484,37 +643,27 @@
 
         fetch('{% url "task:publish" pk=task.pk %}', {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
             body: formData
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('HTTP ' + response.status);
-            }
-            return response.json();
-        })
+        .then(r => r.json())
         .then(data => {
             if (data.success) {
                 showToast('✅ ' + data.message, 'success');
-                // Сброс состояния после успешной публикации
                 codeTested = false;
                 lastTestedCode = '';
             } else {
                 showToast(data.error || 'Ошибка публикации', '');
             }
         })
-        .catch((error) => {
-            console.error('Publish error:', error);
-            showToast('Ошибка соединения', '');
-        });
+        .catch(() => showToast('Ошибка соединения', ''));
     }
 
     function showSolution() {
-    document.getElementById('solution-modal').style.display = 'flex';
+        document.getElementById('solution-modal').style.display = 'flex';
     }
 </script>
+
 
 </body>
 </html>

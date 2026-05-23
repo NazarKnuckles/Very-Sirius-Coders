@@ -8,6 +8,7 @@ from django.db.models import Sum, Count
 from task.models import Submission
 from course.models import CourseEnrollment
 from project.models import ProjectMember
+from course.models import CourseTask
 from .models import Achievement
 from .forms import CustomUserCreationForm
 
@@ -59,7 +60,6 @@ class UserProfileView(DetailView):
 
 
 class UserPortfolioView(LoginRequiredMixin, DetailView):
-    """Личное портфолио текущего пользователя."""
     template_name = 'users/portfolio.html'
     context_object_name = 'profile_user'
 
@@ -70,6 +70,7 @@ class UserPortfolioView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
+        # Статистика по задачам
         accepted = Submission.objects.filter(user=user, status__name='Accepted')
         context['solved_tasks_count'] = accepted.values('task').distinct().count()
 
@@ -80,10 +81,32 @@ class UserPortfolioView(LoginRequiredMixin, DetailView):
         context['xp_to_next_level'] = 1000 - (total_xp % 1000)
         context['xp_percent'] = (total_xp % 1000) / 10
 
+        # Проекты пользователя
         projects = ProjectMember.objects.filter(user=user).select_related('project', 'role')
         context['user_projects'] = projects
+
+        # Достижения
         context['achievements'] = user.achievements.select_related('achievement').order_by('-earned_at')
-        context['enrollments'] = user.enrollments.select_related('course')
+
+        # Курсы с реальным прогрессом
+        enrollments = user.enrollments.select_related('course')
+        for enrollment in enrollments:
+            total_tasks = CourseTask.objects.filter(
+                module__course=enrollment.course
+            ).count()
+
+            solved_tasks = Submission.objects.filter(
+                user=user,
+                status__name='Accepted',
+                task__coursetask__module__course=enrollment.course
+            ).values('task').distinct().count()
+
+            if total_tasks > 0:
+                enrollment.progress_percent = int((solved_tasks / total_tasks) * 100)
+            else:
+                enrollment.progress_percent = 0
+
+        context['enrollments'] = enrollments
 
         return context
 

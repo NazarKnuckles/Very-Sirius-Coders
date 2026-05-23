@@ -256,7 +256,15 @@
     <a href="javascript:history.back()" class="back-btn">← Назад</a>
     <span class="course-title-header">{{ course.title }}</span>
     <div class="top-bar-actions">
-        <button class="btn-enroll" onclick="alert('Вы успешно записаны на курс!')">📝 Записаться</button>
+        {% if user.is_authenticated %}
+            {% if not is_enrolled %}
+                <button class="btn-enroll" onclick="enrollCourse({{ course.id }})">📝 Записаться</button>
+            {% else %}
+                <span style="color: var(--accent); font-size: 0.9rem;">✅ Вы записаны</span>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn-enroll" style="text-decoration: none;">📝 Записаться</a>
+        {% endif %}
     </div>
 </div>
 
@@ -283,10 +291,21 @@
                 <ul class="module-tasks">
                     {% for ct in module.tasks.all %}
                     <li>
-                        <span class="task-check">•</span>
-                        <a href="{% url 'task:detail' pk=ct.task.pk %}" class="task-link">
-                            {{ ct.task.title }}
-                        </a>
+                        {% if ct.task.id in solved_task_ids %}
+                            <span class="task-check done">✓</span>
+                        {% else %}
+                            <span class="task-check">•</span>
+                        {% endif %}
+                        {% if is_enrolled %}
+                            <a href="{% url 'task:detail' pk=ct.task.pk %}" class="task-link">
+                                {{ ct.task.title }}
+                            </a>
+                        {% else %}
+                            <span class="task-link" style="opacity: 0.5; cursor: not-allowed;"
+                                  title="Запишитесь на курс чтобы открыть задачу">
+                                {{ ct.task.title }}
+                            </span>
+                        {% endif %}
                     </li>
                     {% empty %}
                     <li style="opacity: 0.5;">Нет задач</li>
@@ -306,6 +325,21 @@
         <p>Выберите задачу из модуля слева, чтобы начать решать.</p>
     </div>
 </div>
-
+<script>
+    function enrollCourse(courseId) {
+        fetch('{% url "course:enroll" pk=course.id %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+</script>
 </body>
 </html>
