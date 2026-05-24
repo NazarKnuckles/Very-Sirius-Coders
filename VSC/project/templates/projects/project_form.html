@@ -1,0 +1,85 @@
+{% extends 'crius/base.html' %}
+
+{% block title %}Новый проект | Very Sirius coders{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-panel {
+        background-color: var(--bg-panel); border: 1px solid var(--border-color);
+        border-radius: 8px; padding: 30px; max-width: 600px; margin: 40px auto;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+        display: block; margin-bottom: 8px; color: var(--text-heading); font-weight: 500;
+    }
+    .form-control {
+        width: 100%; padding: 10px; background-color: var(--bg-main); color: var(--text-heading);
+        border: 1px solid var(--border-color); border-radius: 5px;
+    }
+    .btn-submit {
+        background-color: var(--accent); color: #fff; padding: 12px; border: none;
+        border-radius: 5px; width: 100%; cursor: pointer; font-size: 1.1rem; font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section active">
+    <div class="form-panel">
+        <h1 style="text-align: center; margin-bottom: 25px;">🚀 Новая публикация</h1>
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Тип публикации</label>
+                <select name="project_type" id="project-type-select" class="form-control">
+                    <option value="develop">🛠️ Совместная разработка (Проект)</option>
+                    <option value="course">🎓 Образовательный курс</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label id="desc-label">Полное описание / Техническое задание</label>
+                <textarea name="description" rows="6" class="form-control" required></textarea>
+            </div>
+            
+            <div class="form-group" id="tech-stack-group">
+                <label>Стек технологий</label>
+                <input type="text" name="tech_stack" class="form-control" placeholder="Python, Django, PostgreSQL">
+            </div>
+            
+            <button type="submit" class="btn-submit">Опубликовать</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('project-type-select');
+        const techStackGroup = document.getElementById('tech-stack-group');
+        const descLabel = document.getElementById('desc-label');
+
+        function toggleFields() {
+            if (typeSelect.value === 'course') {
+                techStackGroup.style.display = 'none';
+                descLabel.innerText = 'Программа курса / Описание';
+            } else {
+                techStackGroup.style.display = 'block';
+                descLabel.innerText = 'Полное описание / Техническое задание';
+            }
+        }
+
+        // Запускаем при изменении селекта
+        typeSelect.addEventListener('change', toggleFields);
+        // Запускаем сразу при загрузке страницы
+        toggleFields();
+    });
+</script>
+{% endblock %}

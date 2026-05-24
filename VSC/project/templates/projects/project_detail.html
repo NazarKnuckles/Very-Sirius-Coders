@@ -1,0 +1,208 @@
+{% extends 'crius/base.html' %}
+
+{% block title %}{{ project.title }} | Very Sirius coders{% endblock %}
+
+{% block extra_css %}
+<style>
+    .layout { display: flex; gap: 20px; }
+    .main-col { flex: 2; }
+    .side-col { flex: 1; }
+    .panel {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .panel h3 {
+        color: var(--text-heading);
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+    }
+    .btn {
+        display: inline-block; padding: 8px 15px; border-radius: 5px;
+        text-decoration: none; color: #fff; border: none; cursor: pointer; text-align: center;
+    }
+    .btn-accent { background-color: var(--accent); width: 100%; }
+    .btn-accept { background-color: #2ecc71; }
+    .btn-reject { background-color: #e74c3c; }
+    .form-input {
+        width: 100%; padding: 10px; margin-bottom: 10px;
+        background-color: var(--bg-main); color: var(--text-heading);
+        border: 1px solid var(--border-color); border-radius: 5px;
+    }
+    .vacancy-card {
+        background: var(--bg-sidebar); padding: 15px; border-radius: 5px;
+        margin-bottom: 15px; border: 1px solid var(--border-color);
+    }
+    .module-block {
+        margin-bottom: 20px;
+        border-left: 4px solid var(--accent);
+        padding-left: 15px;
+    }
+    .lesson-item {
+        margin: 6px 0 6px 15px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        opacity: 0.85;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section active">
+    <a href="javascript:history.back()" style="color: var(--text-main); text-decoration: none; margin-bottom: 15px; display: inline-block;">← Назад</a>
+
+    <div class="layout">
+        <div class="main-col">
+            <div class="panel">
+                <h1>{{ project.title }}</h1>
+                <p style="color: var(--accent); margin-bottom: 15px;">
+                    {% if project.is_course %}🎓 Образовательный курс{% else %}🛠️ Проект | {{ project.status.name }}{% endif %}
+                </p>
+                <p>{{ project.description|linebreaks }}</p>
+                
+                {% if not project.is_course and project.tech_stack %}
+                    <p style="margin-top: 15px;"><strong>Стек:</strong> {{ project.tech_stack }}</p>
+                {% endif %}
+            </div>
+
+            {% if project.is_course %}
+            <div class="panel">
+                <h3>📚 Программа обучения</h3>
+                {% for module in project.modules.all %}
+                    <div class="module-block">
+                        <h4 style="color: var(--text-heading); margin-bottom: 10px;">
+                            Раздел {{ module.order }}: {{ module.title }}
+                        </h4>
+                        
+                        {% for lesson in module.lessons.all %}
+                            <div class="lesson-item">
+                                📄 Урок {{ lesson.order }}: {{ lesson.title }}
+                            </div>
+                        {% empty %}
+                            <p style="margin-left: 15px; font-size: 0.9rem; opacity: 0.5;">В этом разделе пока нет уроков.</p>
+                        {% endfor %}
+                    </div>
+                {% empty %}
+                    <p style="color: var(--text-main); opacity: 0.6;">Программа курса пока не заполнена материалами.</p>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="panel">
+                <h3>Команда</h3>
+                <p>👑 {{ project.created_by.username }} (Создатель)</p>
+                {% for member in members %}
+                    {% if member.user != project.created_by %}
+                        <p>👨‍💻 {{ member.user.username }} {% if member.role %}({{ member.role.name }}){% endif %}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="side-col">
+            {% if project.is_course %}
+                {% if is_lead %}
+                    <div class="panel" style="border: 1px solid var(--accent);">
+                        <h3 style="color: var(--accent);">🛠️ Конструктор курса</h3>
+                        
+                        <form method="post" action="{% url 'add_module' project.pk %}" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                            {% csrf_token %}
+                            <label style="font-size: 0.85rem; color: var(--text-main);">+ Добавить раздел:</label>
+                            <input type="text" name="title" class="form-input" placeholder="Название раздела" required>
+                            <input type="number" name="order" class="form-input" value="{{ project.modules.count|add:1 }}" placeholder="Номер">
+                            <button type="submit" class="btn btn-accent">Создать раздел</button>
+                        </form>
+
+                        {% if project.modules.all %}
+                        <form method="post" action="{% url 'add_lesson' project.pk %}">
+                            {% csrf_token %}
+                            <label style="font-size: 0.85rem; color: var(--text-main);">+ Добавить урок:</label>
+                            <select name="module_id" class="form-input" required>
+                                {% for m in project.modules.all %}
+                                    <option value="{{ m.id }}">{{ m.title }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="text" name="title" class="form-input" placeholder="Тема урока" required>
+                            <textarea name="content" class="form-input" placeholder="Материал лекции" rows="4"></textarea>
+                            <input type="number" name="order" class="form-input" value="1" placeholder="Номер урока">
+                            <button type="submit" class="btn btn-accent" style="background-color: #2ecc71;">Добавить урок</button>
+                        </form>
+                        {% else %}
+                            <p style="font-size: 0.85rem; opacity: 0.6;">Создайте хотя бы один раздел, чтобы добавлять уроки.</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="panel">
+                        <h3>Прохождение курса</h3>
+                        <p style="margin-bottom: 15px; color: var(--text-main);">Автор: {{ project.created_by.username }}</p>
+                        <button class="btn btn-accent" onclick="alert('Модуль прохождения находится в разработке!')">Начать учиться</button>
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if is_lead %}
+                    <div class="panel">
+                        <h3>Управление вакансиями</h3>
+                        <form method="post" action="{% url 'create_vacancy' project.pk %}" style="margin-bottom: 20px;">
+                            {% csrf_token %}
+                            <input type="text" name="title" class="form-input" placeholder="Роль" required>
+                            <textarea name="requirements" class="form-input" placeholder="Требования" required></textarea>
+                            <button type="submit" class="btn btn-accent">Открыть вакансию</button>
+                        </form>
+
+                        <h4 style="color: var(--text-heading); margin-bottom: 10px; font-size: 1.1rem;">Уже ищем:</h4>
+                        {% for vac in vacancies %}
+                            <div class="vacancy-card" style="padding: 10px; margin-bottom: 10px;">
+                                <strong style="color: var(--accent);">{{ vac.role.name }}</strong>
+                                <p style="font-size: 0.85rem; margin-top: 5px; color: var(--text-main);">{{ vac.description }}</p>
+                            </div>
+                        {% empty %}
+                            <p style="font-size: 0.9rem; color: var(--text-main);">Пока нет открытых вакансий.</p>
+                        {% endfor %}
+                    </div>
+
+                    {% if pending_apps %}
+                    <div class="panel">
+                        <h3>Отклики</h3>
+                        {% for app in pending_apps %}
+                            <div class="vacancy-card">
+                                <strong>{{ app.user.username }}</strong> на <i>{{ app.vacancy.role.name }}</i>
+                                <p style="margin: 10px 0; font-size: 0.9rem;">{{ app.text }}</p>
+                                <div style="display: flex; gap: 10px;">
+                                    <a href="{% url 'process_application' app.id 'accept' %}" class="btn btn-accept" style="flex: 1;">Принять</a>
+                                    <a href="{% url 'process_application' app.id 'reject' %}" class="btn btn-reject" style="flex: 1;">Отказ</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="panel">
+                        <h3>Открытые вакансии</h3>
+                        {% for vac in vacancies %}
+                            <div class="vacancy-card">
+                                <h4 style="color: var(--text-heading); margin-bottom: 5px;">{{ vac.role.name }}</h4>
+                                <p style="margin-bottom: 10px; font-size: 0.9rem;">{{ vac.description }}</p>
+
+                                {% if vac.id in has_applied_to %}
+                                    <span style="color: #f39c12; font-weight: bold;">⏳ Заявка отправлена</span>
+                                {% else %}
+                                    <form method="post" action="{% url 'apply_vacancy' vac.id %}">
+                                        {% csrf_token %}
+                                        <input type="text" name="cover_letter" class="form-input" placeholder="О себе" required>
+                                        <button type="submit" class="btn btn-accent">Откликнуться</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <p style="color: var(--text-main); font-size: 0.9rem;">Нет открытых вакансий.</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

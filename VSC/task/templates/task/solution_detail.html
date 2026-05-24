@@ -1,0 +1,307 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Very Sirius coders · решение</title>
+    <style>
+        :root {
+            --bg-main: #181a1f;
+            --bg-panel: #282c34;
+            --text-main: #abb2bf;
+            --text-heading: #ffffff;
+            --accent: #4caf50;
+            --border-color: #3e4451;
+            --hover-bg: #2c313a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .content-container {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .solution-card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px 24px;
+        }
+
+        .solution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .solution-author {
+            font-weight: 600;
+            color: var(--text-heading);
+            font-size: 1.05rem;
+        }
+
+        .solution-date {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .solution-code {
+            background: #1e2229;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            text-align: left;
+            margin: 0;
+        }
+
+        .solution-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-vote {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-vote.voted {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(76, 175, 80, 0.12);
+        }
+
+        .comment-item {
+            background: var(--bg-main);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .comment-content {
+            font-size: 0.9rem;
+        }
+
+        .comment-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+
+        .btn-send {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a href="javascript:history.back()" class="back-btn">← Назад</a>
+    <span class="page-title">Решение {{ solution.author.username }}</span>
+</div>
+
+<div class="content-wrapper" id="scroll-container">
+    <div class="content-container">
+        <div class="solution-card">
+            <div class="solution-header">
+                <span class="solution-author">{{ solution.author.username }}</span>
+                <span class="solution-date">{{ solution.published_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            <pre class="solution-code">{{ solution.submission.code }}</pre>
+            <div class="solution-footer">
+                <button class="btn-vote {% if voted %}voted{% endif %}" onclick="toggleVote({{ solution.id }}, this)">
+                    👍 <span class="vote-count">{{ solution.upvotes }}</span>
+                </button>
+            </div>
+        </div>
+
+        <h3 style="color: var(--text-heading);">💬 Комментарии ({{ page_obj.paginator.count }})</h3>
+
+        <div class="comment-input-row">
+            <textarea class="comment-input" id="comment-input" placeholder="Напишите комментарий..." maxlength="1000"></textarea>
+            <button class="btn-send" onclick="addComment({{ solution.id }})">Отправить</button>
+        </div>
+
+        <div id="comments-list">
+            {% for comment in comments %}
+            <div class="comment-item">
+                <div class="comment-header">
+                    <strong>{{ comment.user.username }}</strong>
+                    <span>{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="comment-content">{{ comment.content }}</div>
+            </div>
+            {% empty %}
+            <p style="opacity:0.5; text-align:center;">Нет комментариев</p>
+            {% endfor %}
+        </div>
+
+        <div id="loading-sentinel" style="height:1px;"></div>
+    </div>
+</div>
+
+<script>
+    let currentOffset = {{ page_obj.end_index|default:0 }};
+    let loading = false;
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !loading) {
+            loadMore();
+        }
+    }, { root: document.getElementById('scroll-container'), rootMargin: '500px' });
+    observer.observe(document.getElementById('loading-sentinel'));
+
+    function loadMore() {
+        loading = true;
+        fetch('/task/solution/{{ solution.id }}/comments/load/?offset=' + currentOffset)
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById('comments-list');
+                data.comments.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'comment-item';
+                    div.innerHTML = `<div class="comment-header"><strong>${c.author}</strong><span>${c.date}</span></div><div class="comment-content">${c.content}</div>`;
+                    list.appendChild(div);
+                });
+                currentOffset += data.comments.length;
+                loading = false;
+            });
+    }
+
+    function toggleVote(id, btn) {
+        fetch('/task/solution/' + id + '/vote/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                btn.querySelector('.vote-count').textContent = data.upvotes;
+                btn.classList.toggle('voted', data.action === 'added');
+            }
+        });
+    }
+
+    function addComment(id) {
+        const input = document.getElementById('comment-input');
+        const content = input.value.trim();
+        if (!content) return;
+
+        const fd = new FormData();
+        fd.append('content', content);
+
+        fetch('/task/solution/' + id + '/comment/add/', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            body: fd
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const div = document.createElement('div');
+                div.className = 'comment-item';
+                div.innerHTML = `<div class="comment-header"><strong>${data.comment.author}</strong><span>${data.comment.date}</span></div><div class="comment-content">${data.comment.content}</div>`;
+                document.getElementById('comments-list').appendChild(div);
+                input.value = '';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

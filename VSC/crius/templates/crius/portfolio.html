@@ -1,0 +1,45 @@
+{% extends 'crius/base.html' %}
+
+{% block title %}Портфолио | Very Sirius coders{% endblock %}
+
+{% block content %}
+<div class="section active" style="overflow-y: auto;">
+    <h1>👤 Моё портфолио</h1>
+    <p style="margin-bottom: 30px;">Управляйте своими достижениями и текущими разработками.</p>
+
+    <h2 style="margin-bottom: 15px; color: var(--accent);">🛠️ Проекты в разработке</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        {% for m in active_projects %}
+        <div style="background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px;">
+            <h3 style="color: var(--text-heading); margin-bottom: 10px;">{{ m.project.title }}</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 15px; color: var(--text-main);">{{ m.project.description|truncatewords:15 }}</p>
+            <div style="font-size: 0.85rem; opacity: 0.8;">
+                Моя роль: <strong style="color: var(--text-heading);">{{ m.role.name }}</strong>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: var(--text-main); opacity: 0.5;">У вас пока нет текущих проектов в разработке.</p>
+        {% endfor %}
+    </div>
+
+    <h2 style="margin-bottom: 15px; color: #2ecc71;">✅ Завершенные проекты</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for m in completed_projects %}
+        <div style="background-color: var(--bg-panel); border: 1px solid #2ecc71; border-radius: 8px; padding: 20px; opacity: 0.8;">
+            <h3 style="color: var(--text-heading); margin-bottom: 10px;">{{ m.project.title }}</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 15px; color: var(--text-main);">{{ m.project.description|truncatewords:15 }}</p>
+            <div style="font-size: 0.85rem;">
+                Роль: <strong>{{ m.role.name }}</strong> (Успешно выполнен)
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: var(--text-main); opacity: 0.5;">В портфолио пока нет завершенных проектов.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="tasks-section" class="section"></div>
+<div id="courses-section" class="section"></div>
+<div id="workspace-section" class="section"></div>
+<div id="projects-section" class="section"></div>
+{% endblock %}

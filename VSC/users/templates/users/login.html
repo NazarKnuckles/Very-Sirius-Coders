@@ -1,0 +1,127 @@
+{% extends "crius/base.html" %}
+
+{% block title %}Вход | Very Sirius coders{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    .auth-box {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .auth-box h2 {
+        text-align: center;
+        margin-bottom: 24px;
+        color: var(--text-heading);
+    }
+
+    .auth-box p {
+        margin-bottom: 16px;
+    }
+
+    .auth-box label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--text-heading);
+        font-size: 0.95rem;
+    }
+
+    .auth-box input[type="text"],
+    .auth-box input[type="password"],
+    .auth-box input[type="email"] {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--bg-main);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        color: var(--text-heading);
+        font-family: inherit;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .auth-box input:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    .errorlist {
+        color: #e06c75;
+        list-style: none;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+
+    .helptext {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.8rem;
+        color: #5c6370;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 16px;
+        transition: background-color 0.2s, opacity 0.2s;
+    }
+
+    .btn-submit:hover {
+        opacity: 0.9;
+    }
+
+    .auth-footer {
+        margin-top: 24px;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    .auth-footer a {
+        color: var(--accent);
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="login-section" class="section active">
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Вход в систему</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn-submit">Войти</button>
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+            <div class="auth-footer">
+                Нет аккаунта? <a href="{% url 'users:register' %}">Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

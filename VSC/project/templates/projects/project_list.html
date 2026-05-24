@@ -1,0 +1,89 @@
+{% extends 'crius/base.html' %}
+
+{% block title %}Проекты | Very Sirius coders{% endblock %}
+
+{% block extra_css %}
+<style>
+    .projects-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .btn-create {
+        background-color: var(--accent);
+        color: #fff;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    .project-card {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        text-decoration: none;
+        color: var(--text-main);
+        display: flex;
+        flex-direction: column;
+    }
+    .project-card:hover {
+        border-color: var(--accent);
+    }
+    .project-card h3 {
+        color: var(--text-heading);
+        margin-bottom: 10px;
+    }
+    .project-card p {
+        flex-grow: 1;
+        margin-bottom: 15px;
+    }
+    .badge {
+        background: var(--bg-sidebar);
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        border: 1px solid var(--border-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section active">
+    <div class="projects-header">
+        <h1>Проекты и Курсы</h1>
+        <a href="{% url 'project_create' %}" class="btn-create">+ Создать</a>
+    </div>
+
+    <div class="projects-grid">
+        {% for p in projects %}
+        <a href="{% url 'project_detail' p.pk %}" class="project-card">
+            <div style="margin-bottom: 10px;">
+                <span class="badge">{{ p.get_project_type_display }}</span>
+                <span class="badge">{{ p.get_status_display }}</span>
+            </div>
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.short_description }}</p>
+            <div style="font-size: 0.9rem;">Тимлид: {{ p.owner.username }}</div>
+        </a>
+        {% endfor %}
+        
+        {% for c in courses %}
+        <a href="{% url 'project_detail' c.pk %}" class="project-card" style="border-color: #e67e22;">
+            <div style="margin-bottom: 10px;">
+                <span class="badge">Курс</span>
+            </div>
+            <h3>{{ c.title }}</h3>
+            <p>{{ c.short_description }}</p>
+            <div style="font-size: 0.9rem;">Автор: {{ c.owner.username }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

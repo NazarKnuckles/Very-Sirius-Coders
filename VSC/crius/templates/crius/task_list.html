@@ -1,0 +1,131 @@
+{% extends 'crius/base.html' %}
+{% load static %}
+
+{% block title %}Very Sirius coders · банк задач{% endblock %}
+
+{% block extra_css %}
+<style>
+    .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 24px;
+        max-width: 900px;
+    }
+
+    .task-row {
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: border-color 0.2s, transform 0.1s;
+    }
+
+    .task-row:hover {
+        border-color: var(--accent);
+        transform: translateY(-1px);
+    }
+
+    .task-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .task-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-heading);
+    }
+
+    .task-desc {
+        font-size: 0.95rem;
+        color: var(--text-main);
+        opacity: 0.85;
+    }
+
+    .tags {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        background-color: rgba(76, 175, 80, 0.12);
+        color: var(--accent);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid rgba(76, 175, 80, 0.25);
+    }
+
+    .tag.type-bug {
+        color: #e06c75;
+        border-color: rgba(224, 108, 117, 0.3);
+        background-color: rgba(224, 108, 117, 0.08);
+    }
+
+    .tag.type-opt {
+        color: #e5c07b;
+        border-color: rgba(229, 192, 123, 0.3);
+        background-color: rgba(229, 192, 123, 0.08);
+    }
+
+    .btn-solve {
+        background-color: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 40px;
+        cursor: default;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        white-space: nowrap;
+        margin-left: 20px;
+        opacity: 0.9;
+        pointer-events: none;
+        user-select: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="tasks-section" class="section active">
+    <h1>📋 Банк задач</h1>
+    <p style="margin-bottom: 4px;">Практикуйтесь на реальных задачах.</p>
+
+    <div class="task-list">
+        {% for task in tasks %}
+        <div class="task-row">
+            <div class="task-info">
+                <div class="task-title">{{ task.title }}</div>
+                <div class="task-desc">{{ task.description|truncatechars:100 }}</div>
+                <div class="tags">
+                    <span class="tag">{{ task.language.name }}</span>
+                    {% if task.difficulty.name == 'Easy' %}
+                        <span class="tag">{{ task.difficulty.name }}</span>
+                    {% elif task.difficulty.name == 'Medium' %}
+                        <span class="tag type-opt">{{ task.difficulty.name }}</span>
+                    {% else %}
+                        <span class="tag type-bug">{{ task.difficulty.name }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'task:detail' pk=task.pk %}" class="btn-solve" style="pointer-events: auto; cursor: pointer; text-decoration: none;">Решить</a>
+        </div>
+        {% empty %}
+        <p>Задачи пока не добавлены.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="courses-section" class="section"></div>
+<div id="workspace-section" class="section"></div>
+<div id="portfolio-section" class="section"></div>
+{% endblock %}
